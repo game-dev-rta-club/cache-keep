@@ -96,7 +96,7 @@ Each conversation has a log in `~/.claude/cache-keep/`, named by its session ID:
 
 - **Nothing is sent once an hour has passed,** for example after your computer wakes from sleep: the cache is already gone, and a ping would only pay to write it again.
 - **In Claude Desktop,** which closes idle conversations when memory runs short, Cache Keep keeps the conversation open with a background `sleep` (the first log line above) and stops it when the pings are done.
-- **If you use [chill-agent](https://github.com/game-dev-rta-club/chill-agent),** it already runs Cache Keep in its projects; do not install this one there as well.
+- **If you use [chill-agent](https://github.com/game-dev-rta-club/chill-agent),** make sure only one Cache Keep runs, or both ping and you pay for both: chill-agent ran its own copy until 2026-10-29, and updating it removes that copy. If `~/.claude/skills/chill-agent-cache-keep` exists, the old copy is still there.
 
 ## Update
 
