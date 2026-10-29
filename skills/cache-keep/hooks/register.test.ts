@@ -174,3 +174,60 @@ test('counts the 55 minutes from the last request of the turn', async ($, on) =>
   expect(seen.pings).toBe(1)
 })
 
+
+// Stands for Claude Desktop's side: the entrypoint, the permission verdict on
+// the hold, and the background tasks started and stopped.
+function desktop(on: any, { entrypoint = 'claude-desktop', decision = 'allow' } = {}) {
+  const tasks = { started: 0, stopped: [] as string[] }
+  on('env.get', () => ({ value: entrypoint }))
+  on('tool.check', () => ({ decision }))
+  on('tool.call', { tool: 'Bash' }, (_: any, e: any) => {
+    tasks.started++
+    expect(e.run_in_background).toBe(true)
+    return { result: { stdout: '', stderr: '', interrupted: false, backgroundTaskId: `b${tasks.started}` } }
+  })
+  on('tool.call', { tool: 'TaskStop' }, (_: any, e: any) => {
+    tasks.stopped.push(e.task_id)
+    return { result: { message: 'stopped', task_id: e.task_id, task_type: 'local_bash' } }
+  })
+  return tasks
+}
+
+test('holds an idle Desktop conversation open until the last ping', async ($, on) => {
+  const clock = mock.clock(on)
+  engine(on, { now: 100_000, messages: 20_000 })
+  const tasks = desktop(on)
+  await turn($)
+  await turn($)
+  expect(tasks.started).toBe(1)
+  await clock.advance(5 * 55 * MINUTE)
+  expect(tasks.stopped).toEqual([])
+  await clock.advance(55 * MINUTE)
+  expect(tasks.stopped).toEqual(['b1'])
+})
+
+test('releases the hold after compacting', async ($, on) => {
+  const clock = mock.clock(on)
+  engine(on, { now: 400_000 })
+  const tasks = desktop(on)
+  await turn($)
+  await clock.advance(6 * 55 * MINUTE)
+  expect(tasks.stopped).toEqual(['b1'])
+})
+
+test('does not hold outside Desktop', async ($, on) => {
+  mock.clock(on)
+  engine(on, { now: 100_000 })
+  const tasks = desktop(on, { entrypoint: 'cli' })
+  await turn($)
+  expect(tasks.started).toBe(0)
+})
+
+test('does not hold when the sleep would ask for permission', async ($, on) => {
+  mock.clock(on)
+  const seen = engine(on, { now: 100_000 })
+  const tasks = desktop(on, { decision: 'ask' })
+  await turn($)
+  expect(tasks.started).toBe(0)
+  expect(seen.log).toContain('would ask for permission')
+})

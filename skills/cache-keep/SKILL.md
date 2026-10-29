@@ -14,6 +14,8 @@ every conversation of the project it is installed in; nothing needs to call it.
   leaves under 60% of it; otherwise it gets one last ping.
 - Each ping and compaction is logged to `cache-keep/<session id>.log` in the
   `.claude` folder that holds the skills folder it is installed in.
+- In Claude Desktop it runs a background `sleep` while pings are due, so
+  Desktop does not stop the idle conversation; it stops the sleep afterwards.
 - Settings are under Cache Keep in Claude Code's config menu: on or off,
   minutes between pings, pings before compacting, and the compaction
   threshold.

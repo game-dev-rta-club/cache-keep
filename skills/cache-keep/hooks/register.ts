@@ -25,6 +25,13 @@ let lastSentAt: number | undefined
 let compactedTokens: number | undefined
 let compactedSizeUnknown = false
 
+// Claude Desktop stops an idle conversation when memory runs short, but never
+// one with a background task running; hooks do not count. So while pings are
+// due there, Cache Keep holds the conversation with a background sleep of its
+// own, and stops it when it has nothing more to send.
+const HOLD = { tool: 'Bash', command: 'sleep 28800', run_in_background: true, description: 'Keep this idle conversation open for Cache Keep' } as const
+let holdId: string | undefined
+
 export function readSettings(options: PluginOptions): Settings {
   const number = (value: unknown, fallback: number, min: number, max: number) =>
     typeof value === 'number' && Number.isFinite(value) ? Math.min(max, Math.max(min, value)) : fallback
@@ -45,6 +52,35 @@ export function shouldCompact(current: number | undefined, compacted: number | u
 function stop() {
   timer?.cancel()
   timer = undefined
+}
+
+async function hold($: EngineInterface) {
+  if (holdId) return
+  try {
+    if ((await $.env.get('CLAUDE_CODE_ENTRYPOINT')) !== 'claude-desktop') return
+    const { decision } = await $.tool.check({ tool: HOLD.tool, input: { command: HOLD.command } })
+    if (decision !== 'allow') {
+      await note($, `not holding the conversation open: ${HOLD.command} would ask for permission`)
+      return
+    }
+    const called = await $.tool.call(HOLD)
+    holdId = (called.result as { backgroundTaskId?: string } | undefined)?.backgroundTaskId
+    await note($, holdId ? `holding the conversation open (task ${holdId})` : `could not hold the conversation open: ${called.deny ?? called.text}`)
+  } catch (error) {
+    await note($, `could not hold the conversation open: ${error instanceof Error ? error.message : error}`)
+  }
+}
+
+async function release($: EngineInterface) {
+  const id = holdId
+  holdId = undefined
+  if (!id) return
+  try {
+    await $.tool.call({ tool: 'TaskStop', task_id: id })
+    await note($, `released the conversation (task ${id})`)
+  } catch (error) {
+    await note($, `could not stop task ${id}: ${error instanceof Error ? error.message : error}`)
+  }
 }
 
 function wait($: EngineInterface, ms: number) {
@@ -87,6 +123,7 @@ async function onIdle($: EngineInterface) {
   const now = await $.clock.now()
   if (lastSentAt !== undefined && now - lastSentAt >= CACHE_LIMIT_MS) {
     await note($, `stopped: ${Math.round((now - lastSentAt) / 60_000)} minutes since the last request, the cache has likely lapsed`)
+    await release($)
     return
   }
   const last = pingsSent >= settings.pings
@@ -96,6 +133,7 @@ async function onIdle($: EngineInterface) {
     if (shouldCompact(current, compacted, settings.compactBelow)) {
       await note($, `compacting: ${current} tokens now, about ${compacted} after`)
       await compact($)
+      await release($)
       return
     }
   }
@@ -105,13 +143,15 @@ async function onIdle($: EngineInterface) {
     pingsSent++
     retriesLeft = RETRIES
     await note($, `ping ${pingsSent}: ${reply.usage.cache_read_input_tokens} tokens read from the cache, ${reply.usage.cache_creation_input_tokens} written`)
-    if (!last) wait($, settings.pingMs)
+    if (last) await release($)
+    else wait($, settings.pingMs)
   } else if (retriesLeft > 0) {
     retriesLeft--
     await note($, `ping not answered (${reply.reason}); trying again in a minute`)
     wait($, RETRY_MS)
   } else {
     await note($, `ping not answered (${reply.reason}); pings stop until the next turn`)
+    await release($)
   }
 }
 
@@ -128,6 +168,7 @@ async function afterTurn($: EngineInterface) {
   if (!settings.enabled) return
   lastSentAt ??= now
   wait($, Math.max(0, lastSentAt + settings.pingMs - now))
+  await hold($)
 }
 
 const mainThread = (e: object) => !('agentId' in e && e.agentId)
@@ -161,8 +202,15 @@ export const register: Register = (on, options) => {
     }
     return result
   })
+  // A hold that ended without Cache Keep (stopped by hand) is started again.
+  on('classic.Stop', async ($, e, next) => {
+    const result = await next(e)
+    if (holdId && e.background_tasks && !e.background_tasks.some((task) => task.id === holdId)) holdId = undefined
+    return result
+  })
   on('session.end', async ($, e, next) => {
     stop()
+    await release($)
     return next(e)
   })
 }

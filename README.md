@@ -41,12 +41,19 @@ compaction threshold in percent (60).
 Each ping and compaction adds a line to `.claude/cache-keep/<session id>.log`
 beside the skills folder it is installed in.
 
+## Claude Desktop
+
+Claude Desktop stops an idle conversation when memory runs short, but never one
+with a background task running. So in Desktop, Cache Keep starts a background
+`sleep` of its own when a turn ends and stops it after the last ping or the
+compaction: the conversation stays open only while pings are due. If running
+`sleep` would ask for permission, it does not hold the conversation and says so
+in the log.
+
 ## Limits
 
 - The timer lives in the Claude Code process. A conversation whose process is
-  stopped loses it until its next turn. Claude Desktop stops conversations idle
-  for a minute or more when memory runs short, unless a background task is
-  running in them.
+  stopped loses it until its next turn.
 - Do not install it where chill-agent already runs its own copy
   (`chill-agent-cache-keep`): both would ping.
 
