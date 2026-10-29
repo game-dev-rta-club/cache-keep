@@ -232,7 +232,11 @@ export const register: Register = (on, options) => {
   })
   on('session.end', async ($, e, next) => {
     stop()
-    await release($)
+    // After a /clear or a resume the process goes on, so the hold is stopped.
+    // Otherwise the process is exiting and the hold ends with it; stopping it
+    // then fails, as no session is bound any more.
+    if (e.reason === 'clear' || e.reason === 'resume') await release($)
+    else holdId = undefined
     return next(e)
   })
 }

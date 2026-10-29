@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.5 — 2026-10-29
+
+- When Claude Code exits, leave the background `sleep` that holds a Desktop conversation open to end with it, instead of trying to stop it and logging "could not stop task". After a `/clear` or a resume it is still stopped.
+
 ## 0.0.4 — 2026-10-29
 
 - Redraw the estimate: the total spent while you leave a conversation for 10 hours, rising when each ping, the compaction and your first message back are sent. Shorten the text beside it. Leave the plugin's behavior unchanged.

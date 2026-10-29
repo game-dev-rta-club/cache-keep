@@ -1,6 +1,6 @@
 {
   "name": "cache-keep",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Keeps an idle Claude Code conversation's one-hour prompt cache alive, then compacts it if it stays idle.",
   "author": { "name": "Game Dev RTA Club" },
   "userConfig": {

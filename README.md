@@ -106,7 +106,7 @@ Rerun the install command to update; nothing updates on its own. See the [releas
 <summary>Install a specific release</summary>
 
 ```sh
-npx skills@latest add https://github.com/game-dev-rta-club/cache-keep/tree/v0.0.4/skills/cache-keep \
+npx skills@latest add https://github.com/game-dev-rta-club/cache-keep/tree/v0.0.5/skills/cache-keep \
   --agent claude-code --global --yes
 ```
 
