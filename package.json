@@ -1,0 +1,8 @@
+{
+  "name": "@game-dev-rta-club/cache-keep",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Keeps an idle Claude Code conversation's prompt cache alive",
+  "license": "MIT",
+  "scripts": { "test": "claude plugin test skills/cache-keep" }
+}
