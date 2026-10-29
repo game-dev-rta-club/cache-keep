@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">Cache Keep</title>
+  <desc id="desc">A ring that is almost closed, like a timer, with a small amber dot kept warm in its gap.</desc>
+  <path d="M86 30A42 42 0 1 0 104 70" fill="none" stroke="#21867e" stroke-width="10" stroke-linecap="round"/>
+  <path d="M64 42V64L78 74" fill="none" stroke="#21867e" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="99" cy="46" r="7" fill="#efb44b"/>
+</svg>
