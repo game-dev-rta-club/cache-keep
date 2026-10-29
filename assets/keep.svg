@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="440" viewBox="0 0 1400 440" role="img" aria-labelledby="title desc">
+  <title id="title">With Cache Keep</title>
+  <desc id="desc">You stop at hour zero. Every 55 minutes Cache Keep pings: it reads the conversation from the cache at a tenth of the normal input price, and the cache lasts another hour. When you come back at hour three, your next message reads from the cache at a tenth of the price too.</desc>
+  <rect width="1400" height="440" rx="28" fill="#f7f5ee"/>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="70" y="70" font-size="22" font-weight="700" letter-spacing="2" fill="#56726d">WITH CACHE KEEP</text>
+    <rect x="120" y="226" width="1080" height="30" rx="8" fill="#21867e"/>
+    <text x="300" y="214" text-anchor="middle" font-size="25" fill="#0b5450">Prompt cache: kept</text>
+    <g fill="#efb44b" stroke="#f7f5ee" stroke-width="4">
+      <circle cx="450" cy="241" r="17"/><circle cx="780" cy="241" r="17"/><circle cx="1110" cy="241" r="17"/>
+    </g>
+    <g font-size="24" text-anchor="middle" fill="#8a5a12">
+      <text x="450" y="190">ping</text><text x="780" y="190">ping</text><text x="1110" y="190">ping</text>
+      <text x="450" y="160" font-weight="700">0.1×</text><text x="780" y="160" font-weight="700">0.1×</text><text x="1110" y="160" font-weight="700">0.1×</text>
+    </g>
+    <path d="M120 300H1280" stroke="#56726d" stroke-width="3"/>
+    <g fill="#56726d" font-size="24" text-anchor="middle">
+      <path d="M120 292V308M480 292V308M840 292V308M1200 292V308" stroke="#56726d" stroke-width="3"/>
+      <text x="120" y="336">0</text><text x="480" y="336">1 hour</text><text x="840" y="336">2 hours</text><text x="1200" y="336">3 hours</text>
+    </g>
+    <circle cx="120" cy="150" r="30" fill="#e2f1ed"/>
+    <text x="120" y="158" text-anchor="middle" font-size="24" font-weight="700" fill="#0b5450">You</text>
+    <text x="165" y="158" font-size="24" fill="#153d3b">stop</text>
+    <rect x="1220" y="96" width="140" height="114" rx="16" fill="#21867e"/>
+    <text x="1290" y="140" text-anchor="middle" font-size="22" font-weight="700" fill="#fff">Read</text>
+    <text x="1290" y="182" text-anchor="middle" font-size="30" font-weight="700" fill="#fff">0.1×</text>
+    <text x="1200" y="390" text-anchor="middle" font-size="25" font-weight="700" fill="#153d3b">You come back</text>
+  </g>
+</svg>

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="440" viewBox="0 0 1400 440" role="img" aria-labelledby="title desc">
+  <title id="title">If you stay away</title>
+  <desc id="desc">Cache Keep pings five times, one every 55 minutes. At about five and a half hours it compacts the conversation: a large block becomes a small summary. When you come back later, your next message writes only the small summary into the cache again.</desc>
+  <rect width="1400" height="440" rx="28" fill="#f7f5ee"/>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="70" y="70" font-size="22" font-weight="700" letter-spacing="2" fill="#56726d">IF YOU STAY AWAY</text>
+    <rect x="70" y="110" width="170" height="160" rx="14" fill="#153d3b"/>
+    <text x="155" y="184" text-anchor="middle" font-size="25" font-weight="700" fill="#fff">Long</text>
+    <text x="155" y="216" text-anchor="middle" font-size="25" font-weight="700" fill="#fff">conversation</text>
+    <g fill="#efb44b">
+      <circle cx="300" cy="190" r="18"/><circle cx="385" cy="190" r="18"/><circle cx="470" cy="190" r="18"/><circle cx="555" cy="190" r="18"/><circle cx="640" cy="190" r="18"/>
+    </g>
+    <text x="470" y="250" text-anchor="middle" font-size="24" fill="#8a5a12">5 pings</text>
+    <path d="M672 190H712" stroke="#21867e" stroke-width="4"/>
+    <rect x="720" y="152" width="200" height="76" rx="14" fill="#21867e"/>
+    <text x="820" y="199" text-anchor="middle" font-size="28" font-weight="700" fill="#fff">Compact</text>
+    <text x="820" y="262" text-anchor="middle" font-size="22" fill="#56726d">about 5.5 hours in</text>
+    <path d="M928 190H968" stroke="#21867e" stroke-width="4"/>
+    <rect x="976" y="164" width="64" height="52" rx="10" fill="#153d3b"/>
+    <text x="1008" y="262" text-anchor="middle" font-size="22" fill="#56726d">summary</text>
+    <path d="M1050 190H1140" stroke="#b9c9c4" stroke-width="3" stroke-dasharray="8 8"/>
+    <rect x="1150" y="132" width="200" height="116" rx="16" fill="#c8692c"/>
+    <text x="1250" y="182" text-anchor="middle" font-size="25" font-weight="700" fill="#fff">Write only</text>
+    <text x="1250" y="216" text-anchor="middle" font-size="25" font-weight="700" fill="#fff">the summary</text>
+    <path d="M60 310H1340" stroke="#56726d" stroke-width="3"/>
+    <text x="155" y="352" text-anchor="middle" font-size="25" font-weight="700" fill="#153d3b">You stop</text>
+    <text x="1250" y="352" text-anchor="middle" font-size="25" font-weight="700" fill="#153d3b">You come back</text>
+  </g>
+</svg>

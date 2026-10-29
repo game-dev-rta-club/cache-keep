@@ -12,26 +12,29 @@
 
 </div>
 
-**Come back to a long Claude Code conversation without paying to cache it all again.**
+**Step away from a long Claude Code conversation without paying to load it all again.**
 
-A Claude Code plugin that keeps an idle conversation's prompt cache warm, then compacts the conversation if you stay away. It works on its own in every conversation; there is nothing to call.
+A Claude Code plugin. It works by itself while your conversation sits idle; there is nothing to call.
 
-## Why it pays
+## The problem: an hour away costs a full rewrite
 
-Claude Code keeps a conversation in a prompt cache that lasts an hour. Come back after more than an hour, and your next message writes the whole conversation into the cache again, at twice the price of plain input.
+![Without Cache Keep: you stop at hour zero, the prompt cache keeps the conversation for one hour and is then gone, and when you come back at hour three your next message writes the whole conversation again at twice the normal price.](assets/problem.svg)
 
-A ping reads the conversation from the cache instead, at a tenth of the input price: a twentieth of writing it again. In a test, a ping after 55 idle minutes read 54,960 tokens from the cache and wrote 83.
+Every message you send carries the whole conversation to the model. Claude Code keeps what the model has already read in a **prompt cache**: reading from there costs a tenth of the normal input price, but the cache lasts only an hour. Come back after that, and your next message pays **twice** the normal price to write the whole conversation into the cache again: a full **rewrite**.
 
-Come back within an hour of any ping, and there is nothing to rewrite. Come back after the compaction, and the rewrite is smaller. Never come back, and the pings have cost about a quarter of one rewrite, plus the compaction.
+## The fix: a small ping before the hour is up
 
-## What happens while you are away
+![With Cache Keep: every 55 minutes a ping reads the conversation from the cache at a tenth of the price, so the cache is still there when you come back, and your next message reads it at a tenth of the price too.](assets/keep.svg)
 
-![After the turn's last request, Cache Keep pings every 55 minutes, up to five times, then compacts the conversation if that leaves under 60% of it. A new message starts the count again.](assets/cycle.svg)
+Every 55 minutes you are away, Cache Keep sends a **ping**: one small request in the background that reads the conversation from the cache, which keeps the cache for another hour, so a message within that hour reads it at a tenth of the price instead of rewriting it. A ping costs a twentieth of a rewrite, and your conversation does not change. In a test, a ping read 54,960 tokens from the cache and wrote just 83.
 
-- **A ping is not a turn.** It is one background request that reads the conversation from the cache. Your transcript, your hooks and the model's context stay as they were. Your next message starts the count again.
-- **After five pings, Cache Keep decides.** At the sixth 55-minute mark, about five and a half hours in, it compacts the conversation if that leaves under 60% of it, so the cache you come back to costs less to write; otherwise it sends one last ping. Either way it then stops.
-- **Nothing is sent once an hour has passed,** for example after your computer wakes from sleep: the cache has lapsed by then, and a ping would pay to write it all again.
-- **In Claude Desktop,** which closes idle conversations when memory runs short, Cache Keep keeps the conversation open with a background `sleep`, longer than the pings so it never ends first, and stops it when the pings are done.
+## If you stay away: compact, then stop
+
+![If you stay away: after five pings, at about five and a half hours, Cache Keep compacts the long conversation into a short summary, so when you come back your next message writes only the summary again.](assets/compact.svg)
+
+After five pings, about five and a half hours in, Cache Keep **compacts** the conversation, as Claude Code's `/compact` does: a summary replaces it, so when you come back there is far less to write again. If that would not make it much smaller, it sends one last ping instead. Then it stops until your next message.
+
+If you never come back, the pings have cost about a quarter of one rewrite, plus the compaction.
 
 ## Install and use
 
@@ -44,7 +47,9 @@ npx skills@latest add game-dev-rta-club/cache-keep \
 
 Cache Keep runs in every conversation you start afterwards. To use it in one project only, run the command from that project without `--global`.
 
-**Requires:** Claude Code with plugin support (tested with 2.1.308); Node.js, npm and Git to install. Cache Keep saves money only while Claude Code keeps your conversations in the one-hour prompt cache. With the five-minute cache, every ping writes the conversation again and Cache Keep costs more than it saves. Read the log after the first ping (see below): a few tokens written means the one-hour cache held; the whole conversation written means the five-minute cache, so turn Cache Keep off (`enabled: false`). If you use [chill-agent](https://github.com/game-dev-rta-club/chill-agent), it already runs Cache Keep in its projects; do not install this one there as well.
+**Requires:** Claude Code with plugin support (tested with 2.1.308), and Node.js, npm and Git to install.
+
+**Only with the one-hour cache.** Cache Keep saves money only while Claude Code keeps conversations in the one-hour prompt cache. If yours uses the five-minute cache instead, every ping writes the conversation again and Cache Keep costs more than it saves. To check, read the log after the first ping (below): a few tokens written means the one-hour cache held; the whole conversation written means the five-minute one, so turn Cache Keep off (`enabled` below).
 
 ## Settings
 
@@ -67,7 +72,7 @@ Change the settings with `/plugin configure cache-keep@skills-dir` in Claude Cod
 
 Whichever way you installed it, Claude Code loads it from your skills folder as the plugin `cache-keep@skills-dir`, and the settings are per user. A change applies from the next conversation.
 
-## See what it did
+## Check that it works
 
 Each conversation has a log in `~/.claude/cache-keep/`, named by its session ID:
 
@@ -75,6 +80,12 @@ Each conversation has a log in `~/.claude/cache-keep/`, named by its session ID:
 2026-10-29T01:42:20.209Z holding the conversation open (task b5pynhfh4, sleep 45360)
 2026-10-29T02:37:13.489Z ping 1: 54960 tokens read from the cache, 83 written
 ```
+
+## Good to know
+
+- **Nothing is sent once an hour has passed,** for example after your computer wakes from sleep: the cache is already gone, and a ping would only pay to write it again.
+- **In Claude Desktop,** which closes idle conversations when memory runs short, Cache Keep keeps the conversation open with a background `sleep` (the first log line above) and stops it when the pings are done.
+- **If you use [chill-agent](https://github.com/game-dev-rta-club/chill-agent),** it already runs Cache Keep in its projects; do not install this one there as well.
 
 ## Update
 
@@ -84,7 +95,7 @@ Rerun the install command to update; nothing updates on its own. See the [releas
 <summary>Install a specific release</summary>
 
 ```sh
-npx skills@latest add https://github.com/game-dev-rta-club/cache-keep/tree/v0.0.1/skills/cache-keep \
+npx skills@latest add https://github.com/game-dev-rta-club/cache-keep/tree/v0.0.2/skills/cache-keep \
   --agent claude-code --global --yes
 ```
 

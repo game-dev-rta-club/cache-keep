@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="440" viewBox="0 0 1400 440" role="img" aria-labelledby="title desc">
+  <title id="title">Without Cache Keep</title>
+  <desc id="desc">You stop at hour zero. The prompt cache keeps the conversation for one hour, then it is gone. When you come back at hour three, your next message writes the whole conversation into the cache again at twice the normal input price.</desc>
+  <rect width="1400" height="440" rx="28" fill="#f7f5ee"/>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="70" y="70" font-size="22" font-weight="700" letter-spacing="2" fill="#56726d">WITHOUT CACHE KEEP</text>
+    <rect x="120" y="226" width="360" height="30" rx="8" fill="#21867e"/>
+    <text x="300" y="214" text-anchor="middle" font-size="25" fill="#0b5450">Prompt cache: 1 hour</text>
+    <rect x="482" y="226" width="716" height="30" rx="8" fill="none" stroke="#b9c9c4" stroke-width="2" stroke-dasharray="8 8"/>
+    <text x="840" y="248" text-anchor="middle" font-size="24" fill="#7d918c">gone</text>
+    <path d="M120 300H1280" stroke="#56726d" stroke-width="3"/>
+    <g fill="#56726d" font-size="24" text-anchor="middle">
+      <path d="M120 292V308M480 292V308M840 292V308M1200 292V308" stroke="#56726d" stroke-width="3"/>
+      <text x="120" y="336">0</text><text x="480" y="336">1 hour</text><text x="840" y="336">2 hours</text><text x="1200" y="336">3 hours</text>
+    </g>
+    <circle cx="120" cy="150" r="30" fill="#e2f1ed"/>
+    <text x="120" y="158" text-anchor="middle" font-size="24" font-weight="700" fill="#0b5450">You</text>
+    <text x="165" y="158" font-size="24" fill="#153d3b">stop</text>
+    <rect x="1080" y="96" width="240" height="114" rx="16" fill="#c8692c"/>
+    <text x="1200" y="140" text-anchor="middle" font-size="25" font-weight="700" fill="#fff">Write it all again</text>
+    <text x="1200" y="182" text-anchor="middle" font-size="30" font-weight="700" fill="#fff">2× price</text>
+    <text x="1200" y="390" text-anchor="middle" font-size="25" font-weight="700" fill="#153d3b">You come back</text>
+  </g>
+</svg>
