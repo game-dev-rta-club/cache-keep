@@ -6,7 +6,7 @@ const MINUTE = 60_000
 // answers the context size and its breakdown the test sets, fails the pings
 // it is told to, and keeps the log in memory.
 function engine(on: any, size: { now: number; messages?: number }) {
-  const seen = { pings: 0, compacts: 0, failPings: 0, log: '', logPath: '', env: { HOME: '/Users/u' } as Record<string, string> }
+  const seen = { pings: 0, compacts: 0, failPings: 0, log: '', logPath: '', env: { HOME: '/home/u' } as Record<string, string> }
   const breakdown = () => {
     const messages = size.messages ?? size.now - 50_000
     return {
@@ -240,7 +240,7 @@ test('writes the log to the user\'s Claude folder, not the project', async ($, o
   const seen = engine(on, { now: 100_000 })
   await turn($)
   await clock.advance(55 * MINUTE)
-  expect(seen.logPath).toBe('/Users/u/.claude/cache-keep/s1.log')
+  expect(seen.logPath).toBe('/home/u/.claude/cache-keep/s1.log')
   seen.env.CLAUDE_CONFIG_DIR = '/elsewhere'
   await clock.advance(55 * MINUTE)
   expect(seen.logPath).toBe('/elsewhere/cache-keep/s1.log')

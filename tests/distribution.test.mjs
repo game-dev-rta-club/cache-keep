@@ -24,6 +24,15 @@ test('the distributable is one self-contained, portable plugin folder', async ()
   }
 });
 
+test('the project text names no one machine or other tool', async () => {
+  const { execFileSync } = await import('node:child_process')
+  const files = execFileSync('git', ['ls-files'], { cwd: root, encoding: 'utf8' }).split('\n').filter((f) => /\.(md|ts|json|mjs)$/.test(f))
+  for (const file of files) {
+    if (file === 'tests/distribution.test.mjs') continue
+    assert.doesNotMatch(await readFile(resolve(root, file), 'utf8'), /\/Users\/|chill-agent|superhookgirl/i, file)
+  }
+})
+
 test('versions agree and no runtime is bundled', async () => {
   const manifest = JSON.parse(await readFile(resolve(root, 'package.json'), 'utf8'));
   const plugin = JSON.parse(await readFile(resolve(directory, '.claude-plugin/plugin.json'), 'utf8'));
