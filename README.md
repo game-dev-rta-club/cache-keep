@@ -32,21 +32,40 @@ conversation of the project. Commit `.claude/skills/cache-keep` for it to load
 in the project's worktrees too. To use it in all your projects, add `--global`
 to install it into `~/.claude/skills` instead.
 
-## Settings and log
+## Settings
 
-Claude Code's config menu lists the settings under Cache Keep: on or off (on by
-default), minutes between pings (55), pings before compacting (5) and the
-compaction threshold in percent (60).
+Claude Code keeps the settings per user, in `~/.claude/settings.json`. Change
+them in the config menu (`/plugin`, Cache Keep) or in the file:
 
-Each ping and compaction adds a line to `.claude/cache-keep/<session id>.log`
-beside the skills folder it is installed in.
+```json
+"pluginConfigs": {
+  "cache-keep@skills-dir": {
+    "options": { "enabled": true, "pingMinutes": 55, "pings": 5, "compactBelowPercent": 60 }
+  }
+}
+```
+
+- `enabled`: on or off (on by default).
+- `pingMinutes`: idle minutes before each ping, under 60 (55).
+- `pings`: pings before Cache Keep decides whether to compact (5).
+- `compactBelowPercent`: compact only when that leaves under this percent of
+  the conversation; otherwise send one last ping and stop (60).
+
+A conversation picks up a change from its next start.
+
+## Log
+
+Each ping, compaction and hold adds a line to
+`~/.claude/cache-keep/<session id>.log` (`$CLAUDE_CONFIG_DIR/cache-keep/` when
+that is set).
 
 ## Claude Desktop
 
 Claude Desktop stops an idle conversation when memory runs short, but never one
 with a background task running. So in Desktop, Cache Keep starts a background
 `sleep` of its own when a turn ends and stops it after the last ping or the
-compaction: the conversation stays open only while pings are due. If running
+compaction: the conversation stays open only while pings are due. The sleep
+lasts twice the longest idle cycle the settings allow, so it never ends first. If running
 `sleep` would ask for permission, it does not hold the conversation and says so
 in the log.
 

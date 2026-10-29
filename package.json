@@ -1,6 +1,6 @@
 {
   "name": "@game-dev-rta-club/cache-keep",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "Keeps an idle Claude Code conversation's prompt cache alive",
   "license": "MIT",

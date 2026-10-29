@@ -6,7 +6,7 @@ const MINUTE = 60_000
 // answers the context size and its breakdown the test sets, fails the pings
 // it is told to, and keeps the log in memory.
 function engine(on: any, size: { now: number; messages?: number }) {
-  const seen = { pings: 0, compacts: 0, failPings: 0, log: '' }
+  const seen = { pings: 0, compacts: 0, failPings: 0, log: '', logPath: '', env: { HOME: '/Users/u' } as Record<string, string> }
   const breakdown = () => {
     const messages = size.messages ?? size.now - 50_000
     return {
@@ -22,10 +22,12 @@ function engine(on: any, size: { now: number; messages?: number }) {
     value: { startedAt: 0, context: { window: 1_000_000, tokens: size.now, ...(e?.breakdown ? { breakdown: breakdown() } : {}) }, rateLimits: [] },
   }))
   on('session.id', () => ({ value: 's1' }))
+  on('env.get', (_: any, e: any) => ({ value: seen.env[e.name] }))
   on('fs.exists', () => ({ value: seen.log !== '' }))
   on('fs.read', () => ({ value: seen.log }))
   on('fs.write', (_: any, e: any) => {
     seen.log = e.text
+    seen.logPath = e.path
     return { value: undefined }
   })
   on('model.fork', () => {
@@ -177,12 +179,13 @@ test('counts the 55 minutes from the last request of the turn', async ($, on) =>
 
 // Stands for Claude Desktop's side: the entrypoint, the permission verdict on
 // the hold, and the background tasks started and stopped.
-function desktop(on: any, { entrypoint = 'claude-desktop', decision = 'allow' } = {}) {
-  const tasks = { started: 0, stopped: [] as string[] }
-  on('env.get', () => ({ value: entrypoint }))
+function desktop(on: any, seen: any, { entrypoint = 'claude-desktop', decision = 'allow' } = {}) {
+  const tasks = { started: 0, stopped: [] as string[], commands: [] as string[] }
+  seen.env.CLAUDE_CODE_ENTRYPOINT = entrypoint
   on('tool.check', () => ({ decision }))
   on('tool.call', { tool: 'Bash' }, (_: any, e: any) => {
     tasks.started++
+    tasks.commands.push(e.command)
     expect(e.run_in_background).toBe(true)
     return { result: { stdout: '', stderr: '', interrupted: false, backgroundTaskId: `b${tasks.started}` } }
   })
@@ -195,8 +198,8 @@ function desktop(on: any, { entrypoint = 'claude-desktop', decision = 'allow' } 
 
 test('holds an idle Desktop conversation open until the last ping', async ($, on) => {
   const clock = mock.clock(on)
-  engine(on, { now: 100_000, messages: 20_000 })
-  const tasks = desktop(on)
+  const seen = engine(on, { now: 100_000, messages: 20_000 })
+  const tasks = desktop(on, seen)
   await turn($)
   await turn($)
   expect(tasks.started).toBe(1)
@@ -208,8 +211,8 @@ test('holds an idle Desktop conversation open until the last ping', async ($, on
 
 test('releases the hold after compacting', async ($, on) => {
   const clock = mock.clock(on)
-  engine(on, { now: 400_000 })
-  const tasks = desktop(on)
+  const seen = engine(on, { now: 400_000 })
+  const tasks = desktop(on, seen)
   await turn($)
   await clock.advance(6 * 55 * MINUTE)
   expect(tasks.stopped).toEqual(['b1'])
@@ -217,8 +220,8 @@ test('releases the hold after compacting', async ($, on) => {
 
 test('does not hold outside Desktop', async ($, on) => {
   mock.clock(on)
-  engine(on, { now: 100_000 })
-  const tasks = desktop(on, { entrypoint: 'cli' })
+  const seen = engine(on, { now: 100_000 })
+  const tasks = desktop(on, seen, { entrypoint: 'cli' })
   await turn($)
   expect(tasks.started).toBe(0)
 })
@@ -226,8 +229,42 @@ test('does not hold outside Desktop', async ($, on) => {
 test('does not hold when the sleep would ask for permission', async ($, on) => {
   mock.clock(on)
   const seen = engine(on, { now: 100_000 })
-  const tasks = desktop(on, { decision: 'ask' })
+  const tasks = desktop(on, seen, { decision: 'ask' })
   await turn($)
   expect(tasks.started).toBe(0)
   expect(seen.log).toContain('would ask for permission')
+})
+
+test('writes the log to the user\'s Claude folder, not the project', async ($, on) => {
+  const clock = mock.clock(on)
+  const seen = engine(on, { now: 100_000 })
+  await turn($)
+  await clock.advance(55 * MINUTE)
+  expect(seen.logPath).toBe('/Users/u/.claude/cache-keep/s1.log')
+  seen.env.CLAUDE_CONFIG_DIR = '/elsewhere'
+  await clock.advance(55 * MINUTE)
+  expect(seen.logPath).toBe('/elsewhere/cache-keep/s1.log')
+})
+
+test('holds for twice the longest idle cycle the settings allow', { options: { pingMinutes: 50, pings: 10 } }, async ($, on) => {
+  mock.clock(on)
+  const seen = engine(on, { now: 100_000 })
+  const tasks = desktop(on, seen)
+  await turn($)
+  // (10 + 1) × 50 minutes, 11 × 3 retries of a minute, 30 minutes to spare: 613 minutes
+  expect(tasks.commands).toEqual([`sleep ${2 * 613 * 60}`])
+})
+
+test('replaces a hold that would end inside the next idle cycle', async ($, on) => {
+  const clock = mock.clock(on)
+  const seen = engine(on, { now: 100_000 })
+  const tasks = desktop(on, seen)
+  await turn($)
+  await clock.advance(5 * 60 * MINUTE)
+  await turn($)
+  expect(tasks.started).toBe(1)
+  await clock.advance(5 * 60 * MINUTE)
+  await turn($)
+  expect(tasks.started).toBe(2)
+  expect(tasks.stopped).toEqual(['b1'])
 })

@@ -29,8 +29,16 @@ let compactedSizeUnknown = false
 // one with a background task running; hooks do not count. So while pings are
 // due there, Cache Keep holds the conversation with a background sleep of its
 // own, and stops it when it has nothing more to send.
-const HOLD = { tool: 'Bash', command: 'sleep 28800', run_in_background: true, description: 'Keep this idle conversation open for Cache Keep' } as const
 let holdId: string | undefined
+// When the running hold's sleep ends by itself. It must outlast the idle cycle:
+// a sleep that ends on its own would bring its notice to the model as a turn.
+let holdEndsAt = 0
+
+// The longest an idle cycle runs from a turn's end: the pings, the last ping or
+// compaction, and every retry, with time to spare.
+function cycleMs() {
+  return (settings.pings + 1) * settings.pingMs + (settings.pings + 1) * RETRIES * RETRY_MS + 30 * 60_000
+}
 
 export function readSettings(options: PluginOptions): Settings {
   const number = (value: unknown, fallback: number, min: number, max: number) =>
@@ -55,17 +63,23 @@ function stop() {
 }
 
 async function hold($: EngineInterface) {
-  if (holdId) return
+  const now = await $.clock.now()
+  if (holdId && holdEndsAt >= now + cycleMs()) return
+  // A hold that would end inside this cycle is replaced by a longer one.
+  await release($)
   try {
     if ((await $.env.get('CLAUDE_CODE_ENTRYPOINT')) !== 'claude-desktop') return
-    const { decision } = await $.tool.check({ tool: HOLD.tool, input: { command: HOLD.command } })
+    const lengthMs = 2 * cycleMs()
+    const command = `sleep ${Math.ceil(lengthMs / 1000)}`
+    const { decision } = await $.tool.check({ tool: 'Bash', input: { command } })
     if (decision !== 'allow') {
-      await note($, `not holding the conversation open: ${HOLD.command} would ask for permission`)
+      await note($, `not holding the conversation open: ${command} would ask for permission`)
       return
     }
-    const called = await $.tool.call(HOLD)
+    const called = await $.tool.call({ tool: 'Bash', command, run_in_background: true, description: 'Keep this idle conversation open for Cache Keep' })
     holdId = (called.result as { backgroundTaskId?: string } | undefined)?.backgroundTaskId
-    await note($, holdId ? `holding the conversation open (task ${holdId})` : `could not hold the conversation open: ${called.deny ?? called.text}`)
+    holdEndsAt = now + lengthMs
+    await note($, holdId ? `holding the conversation open (task ${holdId}, ${command})` : `could not hold the conversation open: ${called.deny ?? called.text}`)
   } catch (error) {
     await note($, `could not hold the conversation open: ${error instanceof Error ? error.message : error}`)
   }
@@ -87,11 +101,19 @@ function wait($: EngineInterface, ms: number) {
   timer = $.clock.after(ms, () => void onIdle($))
 }
 
-// One line per ping and compaction, in a cache-keep folder beside the skills
-// folder: the project's .claude, or ~/.claude when installed for the user.
+// One line per ping and compaction, in cache-keep/ in the user's Claude folder
+// (~/.claude, or $CLAUDE_CONFIG_DIR), never in the project.
+async function logFolder($: EngineInterface) {
+  const config = await $.env.get('CLAUDE_CONFIG_DIR')
+  if (config) return `${config}/cache-keep`
+  const home = (await $.env.get('HOME')) ?? (await $.env.get('USERPROFILE'))
+  if (!home) throw new Error('no home folder')
+  return `${home}/.claude/cache-keep`
+}
+
 async function note($: EngineInterface, text: string) {
   try {
-    const path = `${$.plugin.root}/../../cache-keep/${await $.session.id()}.log`
+    const path = `${await logFolder($)}/${await $.session.id()}.log`
     const earlier = (await $.fs.exists(path)) ? await $.fs.read(path) : ''
     await $.fs.write(path, `${earlier}${new Date(await $.clock.now()).toISOString()} ${text}\n`)
   } catch (error) {
