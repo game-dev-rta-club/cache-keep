@@ -34,7 +34,20 @@ Every 55 minutes you are away, Cache Keep sends a **ping**: one small request in
 
 After five pings, about five and a half hours in, Cache Keep **compacts** the conversation, as Claude Code's `/compact` does: a summary replaces it, so when you come back there is far less to write again. If that would not make it much smaller, it sends one last ping instead. Then it stops until your next message.
 
-If you never come back, the pings have cost about a quarter of one rewrite, plus the compaction.
+## What it saves: an estimate
+
+![A 300k-token conversation: the cost of coming back after a given number of hours, counting the pings and the compaction while you are away and your first message back, as a share of one full rewrite. Without Cache Keep it is 5% within the first hour, then 100%. With Cache Keep it rises 5% with each ping, to 30% at five hours; the compaction at about five and a half hours brings it to 63%, where it stays. At 10 hours away: 100% without, 63% with.](assets/estimate.svg)
+
+Take a 300k-token conversation. Come back within the hour and it costs the same small read with or without Cache Keep. After that, without Cache Keep you pay for a full rewrite. With it, each ping adds a twentieth of a rewrite, and after the compaction the total stays at 63% of a rewrite: come back after 10 hours, and it costs 37% less. If you never come back, the pings and the compaction have cost about 40% of a rewrite.
+
+Until the compaction the picture is the same for any size: coming back costs a twentieth of a rewrite per ping instead of a whole rewrite. Where the line settles afterwards depends on the conversation's size: about 21% less at 200k tokens, 37% at 300k, 50% at 500k, 58% at 800k. Below about 140k tokens, staying away past the compaction costs more with Cache Keep than without. Conversations over 200k tokens need a model with the 1M-token context window.
+
+<details>
+<summary>How this is estimated</summary>
+
+Prices are taken relative to the normal input price, as Anthropic lists them: writing to the one-hour cache costs 2×, reading from it 0.1×, output 5×. One real compaction took a conversation from 310,523 tokens to 65,219. The estimate assumes every conversation compacts to 65k tokens: about 52k of system prompt and tools, which compaction keeps, and a summary of 13k tokens, which the compaction pays for as output. Coming back after the compaction costs five pings (0.1× the conversation each), the compaction (0.1× to read it, 5× for the summary) and the first message back (2× the 65k that remain); without Cache Keep it costs 2× the whole conversation. [scripts/estimate.mjs](scripts/estimate.mjs) draws the chart from these numbers.
+
+</details>
 
 ## Install and use
 
@@ -95,7 +108,7 @@ Rerun the install command to update; nothing updates on its own. See the [releas
 <summary>Install a specific release</summary>
 
 ```sh
-npx skills@latest add https://github.com/game-dev-rta-club/cache-keep/tree/v0.0.2/skills/cache-keep \
+npx skills@latest add https://github.com/game-dev-rta-club/cache-keep/tree/v0.0.3/skills/cache-keep \
   --agent claude-code --global --yes
 ```
 

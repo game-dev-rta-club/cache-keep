@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="640" viewBox="0 0 1400 640" role="img" aria-labelledby="title desc">
+  <title id="title">What stepping away costs, by when you come back</title>
+  <desc id="desc">A 300k-token conversation. The cost of coming back after a given number of hours, counting what was spent while away and your first message back, as a share of one full rewrite. Without Cache Keep it is 5% within the first hour, then 100%. With Cache Keep it rises 5% with each ping, to 30% at five hours, then the compaction at about five and a half hours brings it to 63%, where it stays. Coming back after 10 hours costs 100% without Cache Keep and 63% with it.</desc>
+  <rect width="1400" height="640" rx="28" fill="#fcfcfb"/>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="60" y="64" font-size="30" font-weight="700" fill="#1f2a28">What stepping away costs, by when you come back</text>
+    <text x="60" y="102" font-size="22" fill="#5c6b67">A 300k-token conversation. What is spent while you are away plus your first message back; one full rewrite = 100%.</text>
+    <rect x="60" y="124" width="20" height="20" rx="4" fill="#eb6834"/><text x="90" y="141" font-size="21" fill="#1f2a28">Without Cache Keep</text>
+    <rect x="320" y="124" width="20" height="20" rx="4" fill="#2a78d6"/><text x="350" y="141" font-size="21" fill="#1f2a28">With Cache Keep</text>
+    <path d="M150 520H1230" stroke="#e3e6e3" stroke-width="2"/><text x="136" y="527" text-anchor="end" font-size="20" fill="#5c6b67">0%</text>
+    <path d="M150 440.45454545454544H1230" stroke="#e3e6e3" stroke-width="2"/><text x="136" y="447.45454545454544" text-anchor="end" font-size="20" fill="#5c6b67">25%</text>
+    <path d="M150 360.9090909090909H1230" stroke="#e3e6e3" stroke-width="2"/><text x="136" y="367.9090909090909" text-anchor="end" font-size="20" fill="#5c6b67">50%</text>
+    <path d="M150 281.3636363636364H1230" stroke="#e3e6e3" stroke-width="2"/><text x="136" y="288.3636363636364" text-anchor="end" font-size="20" fill="#5c6b67">75%</text>
+    <path d="M150 201.8181818181818H1230" stroke="#e3e6e3" stroke-width="2"/><text x="136" y="208.8181818181818" text-anchor="end" font-size="20" fill="#5c6b67">100%</text>
+    <text x="150" y="554" text-anchor="middle" font-size="20" fill="#5c6b67">0h</text>
+    <text x="330" y="554" text-anchor="middle" font-size="20" fill="#5c6b67">2h</text>
+    <text x="510" y="554" text-anchor="middle" font-size="20" fill="#5c6b67">4h</text>
+    <text x="690" y="554" text-anchor="middle" font-size="20" fill="#5c6b67">6h</text>
+    <text x="870" y="554" text-anchor="middle" font-size="20" fill="#5c6b67">8h</text>
+    <text x="1050" y="554" text-anchor="middle" font-size="20" fill="#5c6b67">10h</text>
+    <text x="1230" y="554" text-anchor="middle" font-size="20" fill="#5c6b67">12h</text>
+    <text x="1230" y="590" text-anchor="end" font-size="20" fill="#5c6b67">hours away</text>
+    <path d="M1050 201.8181818181818V321.1363636363636" stroke="#1f2a28" stroke-width="2" stroke-dasharray="6 6"/>
+    <rect x="1064" y="237.47727272727275" width="150" height="44" rx="10" fill="#fff" stroke="#e3e6e3" stroke-width="2"/>
+    <text x="1139" y="267.47727272727275" text-anchor="middle" font-size="22" font-weight="700" fill="#1f2a28">37% less</text>
+    <path d="M150.0 504.1L240.0 504.1L240.0 201.8L1230.0 201.8" fill="none" stroke="#eb6834" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M150.0 504.1L232.5 504.1L232.5 488.2L315.0 488.2L315.0 472.3L397.5 472.3L397.5 456.4L480.0 456.4L480.0 440.5L562.5 440.5L562.5 424.5L645.0 424.5L645.0 321.1L1230.0 321.1" fill="none" stroke="#2a78d6" stroke-width="4" stroke-linejoin="round"/>
+    <text x="1242" y="208.8181818181818" font-size="21" font-weight="700" fill="#1f2a28">100%</text>
+    <text x="1242" y="328.1363636363636" font-size="21" font-weight="700" fill="#1f2a28">63%</text>
+    <text x="195" y="187.8181818181818" font-size="19" fill="#5c6b67">cache gone after 1h</text>
+    <text x="348" y="410.54545454545456" font-size="19" fill="#5c6b67">a ping every 55 min</text>
+    <text x="655" y="355.1363636363636" font-size="19" fill="#5c6b67">compaction, about 5.5h</text>
+  </g>
+</svg>

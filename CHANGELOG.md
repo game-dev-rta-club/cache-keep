@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.3 — 2026-10-29
+
+- Add an estimate to the README: a chart of what coming back after a given number of hours costs, with and without Cache Keep, for a 300k-token conversation, and the saving at other sizes. `scripts/estimate.mjs` draws the chart. Leave the plugin's behavior unchanged.
+
 ## 0.0.2 — 2026-10-29
 
 - Rewrite the README to explain the idea in three pictures: what an hour away costs, how a ping keeps the cache, and the compaction if you stay away. Leave the plugin's behavior unchanged.
