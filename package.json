@@ -1,6 +1,6 @@
 {
   "name": "@game-dev-rta-club/cache-keep",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "private": true,
   "description": "Keep an idle Claude Code conversation's prompt cache warm, then compact it",
   "type": "module",

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.4 — 2026-10-29
+
+- Redraw the estimate: the total spent while you leave a conversation for 10 hours, rising when each ping, the compaction and your first message back are sent. Shorten the text beside it. Leave the plugin's behavior unchanged.
+
 ## 0.0.3 — 2026-10-29
 
 - Add an estimate to the README: a chart of what coming back after a given number of hours costs, with and without Cache Keep, for a 300k-token conversation, and the saving at other sizes. `scripts/estimate.mjs` draws the chart. Leave the plugin's behavior unchanged.
